@@ -13,7 +13,7 @@ Please use this menu to navigate the various sections of this Github repository.
 * [Controller PnP](https://github.com/kebaldwi/DNAC-WIRELESS/blob/master/LABS/LAB2-Pnp-Discovery/) - This lab explains in depth and how to use Plug and Play with a Cisco 9800 Controller
 * [Controller HA](https://github.com/kebaldwi/DNAC-WIRELESS/blob/master/LABS/LAB3-Controller-HA/) - This lab will dive into Controller High Availability
 * [WLANs](https://github.com/kebaldwi/DNAC-WIRELESS/blob/master/LABS/LAB4-WLANs/) - This lab will explore how to build Wireless LAN's
-* [WLANs](https://github.com/kebaldwi/DNAC-WIRELESS/blob/master/LABS/LAB5-AP-Provisioning/) - This lab will explore how to Onboard and Provison
+* [AP Provisioning](https://github.com/kebaldwi/DNAC-WIRELESS/blob/master/LABS/LAB5-AP-Provisioning/) - This lab will explore how to Onboard and Provison
 * [Application Policys](https://github.com/kebaldwi/DNAC-WIRELESS/tree/master/LABS/LAB6-Application-Policy/) - This lab will explain Application Policys in DNAC and their use
 * [Telemetry](https://github.com/kebaldwi/DNAC-WIRELESS/tree/master/LABS/LAB7-Telemetry-Enablement/) - This lab will explain how to deploy Telemetry for assurance
 * [Advanced Automation](https://github.com/kebaldwi/DNAC-WIRELESS/tree/master/LABS/LAB8-Advanced-Automation/) - This lab will explore Advanced Automation examples 
