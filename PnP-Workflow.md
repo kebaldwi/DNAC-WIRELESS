@@ -1,12 +1,47 @@
 # PnP Workflow 
-With the advent of Cisco DNA Center, Cisco has taken a leap forward in how to deploy network devices. Through the use of DNA Center it is now possible use PnP to deploy switches and automate the build of branch and device deployments.
+With the advent of Cisco DNA Center, Cisco has taken a leap forward in how to deploy network devices. Through the use of DNA Center, it is now possible use PnP to deploy the Catalyst wireless infrastructure and automate the device deployment.
 
-For DNA Center to begin the process it must first learn of the device. The device therefore must communicate to DNA Center and this section will explain how this can be achieved.
+Preparation is the key to a successful PnP deployment. PnP for Catalyst 9800 and Access Points requires Cisco DNA Center to be 
 
-The first piece to the puzzle is that the device must get an IP address. It does not have one by default as it has not been primed nor do we want to do that in a fully automated flow.
+For DNA Center to begin the process, it must first learn of the device. The device therefore must communicate to DNA Center and this section will explain how this can be achieved.
 
-## Device Connectivity
-For PnP processes to work our intention is to have a management interface on the device, like a Loopback or Vlan interface. As the device is connected to the front facing ports by default there is little configuration. As a result initially Vlan 1 is all that is available on the target device for the pnp workflow. We can manipulate addresses and even change the source of the management interface to a loopback, vlan, or routed interface.
+The first piece to the puzzle is that the device must get an IP address. It does not have one by default, as it has not been primed, nor do we want to do that in a fully automated flow.
+
+## PnP Minimum Infrastructure Requirements
+- Cisco DNA Center (_Release 2.1.2.0 and newer._)
+- Supported Catalyst 9800 WLCs (_IOS XE 17.3.1 and newer._)
+	- Catalyst 9800-L
+	- Catalyst 9800-40
+	- Catalyst 9800-80
+	- Catalyst 9800-CL (Private Cloud)
+	- Cisco Embedded Wireless Controller (EWC) on Catalyst Access Points
+- Unsupported Catalyst 9800 WLCs
+	- Catalyst 9800-CL (Public Cloud)
+- Supported Access Points
+	- Catalyst 9100 Series (Wi-Fi 6)
+	- Aironet x800 Series (Wi-Fi 5)
+	- Cisco IW6300 / ESW6300 (Wi-Fi 5)
+
+> **NOTE:** Not all Cisco devices support PnP. See the [Cisco DNA Center Supported Devices](https://www.cisco.com/c/en/us/support/cloud-systems-management/dna-center/products-device-support-tables-list.html) for a comprehensive list of supported Cisco devices.
+
+## How Cisco DNA Center Certificates Impact PnP
+PnP utilizes HTTPS transport to ensure transactions with Cisco DNA Center are confidential. As part of the initial PnP flow, the supported Cisco devices download a trustpool bundle directly from Cisco DNA Center using HTTP. After installing the trustbundle, the PnP device will automatically re-connect with the PnP service on Cisco DNA Center using HTTPS.
+
+Special care should be taken to ensure the certificate on Cisco DNA Center contains the required attributes for PnP and the Catalyst 9800.
+
+- **For Cisco DNA Center 2.1.1 and later**, FQDN certificate support is only available for Catalyst 9800 WLCs running IOS XE 17.4 or newer. (Including 
+- **For Cisco DNA Center versions _earlier than 2.1.1_ and Catalyst 9800 running IOS XE 17.3.1**, the "alt_names" section of the certificate must include IP addresses along with DNS names that are used to access Cisco DNA Center. Especially if using DNS for PnP discovery (e.g. pnpserver.\<local\_domain\>).
+
+> _Please review the [Cisco DNA Center Security Best Practices Guide](https://www.cisco.com/c/en/us/td/docs/cloud-systems-management/network-automation-and-management/dna-center/hardening_guide/b_dnac_security_best_practices_guide.html) for managing certificates and security hardening guidance._
+
+
+## Device Connectivity - Catalyst 9800
+For the PnP processes to work, the Catalyst 9800 needs an interface with connectivity to DNA Center. IP addressing of the interface will be dynamic via DHCP.
+
+
+
+
+our intention is to have a management interface on the device, like a Loopback or Vlan interface. As the device is connected to the front facing ports by default there is little configuration. As a result initially Vlan 1 is all that is available on the target device for the pnp workflow. We can manipulate addresses and even change the source of the management interface to a loopback, vlan, or routed interface.
 
 By default the target switch is using vlan 1 as no other vlan exists, and vlan 1 by default accepts DHCP addresses. We could use vlan 1 for provisioning, but more than likely we would need to use some other vlan for our management vlan. 
 
