@@ -3,11 +3,11 @@ Provision a Cisco AP—Day 1 AP Provisioning
 
 **Before you begin**
 
-Make sure that you have Cisco APs in your inventory. If not, use the Discovery feature to discover APs. For more information, see Discover Your Network.
+Make sure that you have Cisco APs in your inventory. If not, use the Discovery feature to discover APs. For more information, see [Discover Your Network](https://www.cisco.com/c/en/us/td/docs/cloud-systems-management/network-automation-and-management/dna-center/2-2-2/user_guide/b_cisco_dna_center_ug_2_2_2/b_cisco_dna_center_ug_2_2_2_chapter_010.html#id_48423).
 
 **Procedure**
 -
-Step 1 - In the Cisco DNA Center GUI, click the **Menu** icon (![](data:image/jpeg;base64,UklGRhQBAABXRUJQVlA4IAgBAADwCACdASpHADYAPtFao0woJaMiMz1YAQAaCWQAzfomSALt3z/+mAbzsDiFhyVyktuUwCetRJ/r09V+HiBHbZKyQiNc3vjFC4FQ8Gly3rtrAAD++KyEMNkYmRRo+PctBQdJuQfmfq5V3610WtF6Q2GKaxXo1pa+FXM4mxFAqvuovuH7Uofl9wc4NSC71y2XHMiNG29r03UAo4Kq9l+RKwF2NQtpwi8O5sAsBg8xUhREhynpRrPxwyUHK/bZbXKZUmE79fekFgHxvsYTV34/tIFVu9PLG72f/8z9Z3O6pMCNS2ng5neJcbQyqv6j7DJCDI3S15Q9XH7R1cZsloxrY2luI4Gxi8qIAAA=)) and choose **Provision > Devices > Inventory**.
+Step 1 - In the Cisco DNA Center GUI, click the **Menu** icon (![json](./images/dnac-hamburger-icon.png?raw=true "Import JSON")) and choose **Provision > Devices > Inventory**.
 
 The **Inventory** window appears, with the discovered devices listed.
 
@@ -47,7 +47,7 @@ Step 12 - In the **Provision Devices** window, do the following to preview the C
 * 	In the **Task Name** field, enter a name for the CLI preview task and click **Apply**.
 * 	In the **Task Submitted** pop-up, click the **Work Items** link.
     
-    **Note**	If you missed the **Task Submitted** pop-up, click the **Menu** icon (![](data:image/jpeg;base64,UklGRhQBAABXRUJQVlA4IAgBAADwCACdASpHADYAPtFao0woJaMiMz1YAQAaCWQAzfomSALt3z/+mAbzsDiFhyVyktuUwCetRJ/r09V+HiBHbZKyQiNc3vjFC4FQ8Gly3rtrAAD++KyEMNkYmRRo+PctBQdJuQfmfq5V3610WtF6Q2GKaxXo1pa+FXM4mxFAqvuovuH7Uofl9wc4NSC71y2XHMiNG29r03UAo4Kq9l+RKwF2NQtpwi8O5sAsBg8xUhREhynpRrPxwyUHK/bZbXKZUmE79fekFgHxvsYTV34/tIFVu9PLG72f/8z9Z3O6pMCNS2ng5neJcbQyqv6j7DJCDI3S15Q9XH7R1cZsloxrY2luI4Gxi8qIAAA=)) and choose **Activity > Work Items**.
+    **Note**	If you missed the **Task Submitted** pop-up, click the **Menu** icon (![json](./images/dnac-hamburger-icon.png?raw=true "Import JSON")) and choose **Activity > Work Items**.
 * 	In the **Work Items** window, click the CLI preview task for which you submitted the configuration preview request.
 * 	View the CLI configuration details and click **Deploy**.
 * 	To immediately deploy the device, click the **Now** radio button, and click **Apply**.
