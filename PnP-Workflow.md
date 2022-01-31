@@ -18,7 +18,7 @@ The first piece to the puzzle is that the device must get an IP address. It does
 - Unsupported Catalyst 9800 WLCs
 	- Catalyst 9800-CL (Public Cloud)
 - Supported Access Points
-	- Catalyst 9100 Series (Wi-Fi 6)
+	- Catalyst 9100 Series (Wi-Fi 6 & Wi-Fi 6e)
 	- Aironet x800 Series (Wi-Fi 5)
 	- Cisco IW6300 / ESW6300 (Wi-Fi 5)
 
@@ -36,45 +36,16 @@ Special care should be taken to ensure the certificate on Cisco DNA Center conta
 
 
 ## Device Connectivity - Catalyst 9800
-For the PnP processes to work, the Catalyst 9800 needs an interface with connectivity to DNA Center. IP addressing of the interface will be dynamic via DHCP.
+For the PnP processes to work, the Catalyst 9800 needs an interface with connectivity to DNA Center. IP addressing of the interface will be dynamic via DHCP. The Service Port (SP) on the Catalyst 9800 is the simplest interface to use for PnP.
 
-
-
-
-our intention is to have a management interface on the device, like a Loopback or Vlan interface. As the device is connected to the front facing ports by default there is little configuration. As a result initially Vlan 1 is all that is available on the target device for the pnp workflow. We can manipulate addresses and even change the source of the management interface to a loopback, vlan, or routed interface.
-
-By default the target switch is using vlan 1 as no other vlan exists, and vlan 1 by default accepts DHCP addresses. We could use vlan 1 for provisioning, but more than likely we would need to use some other vlan for our management vlan. 
-
-If the management vlan is going to be different from vlan 1 we will use a command on the upstream switch to communicate that to the downstream target switch. To that end we must make use of the *pnp startup-vlan* command which allows the device to use any vlan in pnp. This command introduced on the upstream neighbor enables automatic downstream configuration on the target enabling it for DHCP and making it ready for the pnp process.
- 
-```
-pnp startup-vlan 100
-```
-
-The target switch will then set up a separate vlan for management. This command will program the target switches port connected with a trunk and automatically add the vlan and SVI to the target switch making that vlan ready to accept a DHCP address. This is available on switches running 16.6 code or greater as upstream neighbors. Older switches or upstream devices that are not capable of running the command should be onboarded in vlan 1 and the vlan modified as part of the onboarding process.
-
-The Target switch will typically be connected to either a single port or as part of a port channel. The port where the Target switch will be connected needs for this lab to be connected as a trunk. 
-
-```
-interface Port-channel1
-switchport trunk native vlan 5
-switchport mode dynamic desirable
-no port-channel standalone-disable
-!
-interface range gi 1/0/10-11
-description PnP Test Environment to Cataylist 9300
-switchport mode dynamic desirable
-switchport trunk allowed vlan 5
-channel-protocol lacp
-channel-group 1 mode passive
-```
-
-If a port channel is used initially, then you want to ensure that the port channel can operate as a single link within the bundle and for that reason use passive methods for building the port channel bundles on both the Target and Upstream Neighbor for maximum flexibility. Additionally add the **no port-channel standalone-disable** command to ensure the switch does not automatically disable the port channel if it does not come up properly
+## Device Connectivity - Access Point
+For the PnP processes to work, the supported access points need an interface with connectivity to DNA Center. IP addressing of the interface will be dynamic via DHCP. The wired interface on the access point will be used by default.Service Port (SP) on the Catalyst 9800 is the simplest interface to use for PnP.
 
 ## DHCP
 So we need a DHCP scope to supply the address within the management network temporarily in order to complete the configuration and onboarding. The scope should be configured so as to offer addresses from part of the range of addresses not used. It also can be a reservation as DHCP servers can reserve addresses for specific MAC addresses. 
 
 The DHCP scope would incorporate therefore the following which would be enough to get an address:
+
 * **network**
 * **default gateway**
 * **domain**                
