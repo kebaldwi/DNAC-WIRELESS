@@ -131,7 +131,7 @@ The image used in this lab for the 9300-2 is downloadable from here [⬇︎Benga
    ![json](./images/DNAC-Design-ImageRepo-golden.png?raw=true "Import JSON")
 
 ## Lab Section 5 - DNA Center Template Preparation
-As Labs 1 through 9  within DNAC Template Labs deal with the wired network in depth and the automation tasks like PnP and DayN templating for switching, in this set of labs we will focus on only the wireless network. We will now import the various templates for use in this lab for the router and switches to prepare the environment for the Wireless Labs ahead.
+As Labs 1 through 9  within [DNAC Template LABS](https://github.com/kebaldwi/DNAC-TEMPLATES/tree/master/LABS#dnac-template-labs-) deal with the wired network in depth and the automation tasks like PnP and DayN templating for switching, in this set of labs we will focus on only the wireless network. We will now import the various templates for use in this lab for the router and switches to prepare the environment for the Wireless Labs ahead.
 
 ### Step 1 - ***Import Lab Preparation Project***
 The Lab Preparation Project and Templates will be used to prepare the environment.

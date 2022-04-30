@@ -10,7 +10,7 @@ As a result, customers will gain experience setting up Plug and Play ,onboarding
 Please use this menu to navigate the various sections of this Github repository. Within the multiple folders are examples, explanation readme files for reference.
 
 * [PnP Preparation](https://github.com/kebaldwi/DNAC-WIRELESS/blob/master/LABS/LAB1-PNP-PREP/) - This lab explains the overall Global Plug and Play set up steps
-* [Controller PnP](https://github.com/kebaldwi/DNAC-WIRELESS/blob/master/LABS/LAB2-Pnp-Discovery/) - This lab explains in depth and how to use Plug and Play with a Cisco 9800 Controller
+* [PnP & Discover](https://github.com/kebaldwi/DNAC-WIRELESS/blob/master/LABS/LAB2-Pnp-Discovery/) - This lab explains in depth and how to use Plug and Play with a Cisco 9800 Controller
 * [Controller HA](https://github.com/kebaldwi/DNAC-WIRELESS/blob/master/LABS/LAB3-Controller-HA/) - This lab will dive into Controller High Availability
 * [WLANs](https://github.com/kebaldwi/DNAC-WIRELESS/blob/master/LABS/LAB4-WLANs/) - This lab will explore how to build Wireless LAN's
 * [AP Provisioning](https://github.com/kebaldwi/DNAC-WIRELESS/blob/master/LABS/LAB5-AP-Provisioning/) - This lab will explore how to Onboard and Provison
@@ -20,7 +20,9 @@ Please use this menu to navigate the various sections of this Github repository.
 
 ## DCLOUD as a LAB
 ### Overview
-This section will explain which lab to utilize within the **DCLOUD** environment to run these labs. It will also discuss a customer POC environment and the steps necessary to successfully run these sections within a customer environment for localized testing.
+To help aid customers toward success with DNA Center Automation, You may utilize the above labs as they have been designed to work within DCLOUD's [Cisco Enterprise Networks Hardware Sandbox](https://dcloud2-sjc.cisco.com/content/catalogue?search=Enterprise%20Networks%20Hardware%20Sandbox&screenCommand=openFilterScreen) Lab. This allows you to run these labs and gives not only an environment to try the various code, but to develop and export your own code for use in production. This give the customer an environment where they can safely POC/POV methods and steps without harming their own production environments. This also negaes the need for shipping equipment, lead times, and licensing issues needed to get moving rapidly. Please do adhere to the best practices for the DCLOUD environment when using it.
+
+The environment allows for use with a web-based browser client for VPN-less connectivity, access as well as AnyConnect VPN client connectivity for those who prefer it. The labs are hosted out of our San Jose Facility and so you would choose sessions from US West. Choose the Cisco Enterprise Network Sandbox version you prefer. To access this or any other content, including demonstrations, labs, and training in Cloud please work with your Cisco Account team or Cisco Partner Account Team directly. Your Account teams will make sure the session is scheduled and shared for you to use. Once booked follow the guide within Github to complete the tasks adhering to the best practices of the dCLOUD environment.
 
 ### DCLOUD Labs
 This lab environment has been tested on the following DCLOUD session: [Cisco Enterprise Networks Hardware Sandbox v2.1](https://dcloud2-rtp.cisco.com/content/demo/759521?returnPathTitleKey=favourites-view)
@@ -29,26 +31,28 @@ The DCLOUD session includes the following equipment:
 
 Virtual Machines:
 
-    DNA Center 2.1.2.5
-    Identity Services Engine (ISE) 3.0 (Not Configured)
-    Stealthwatch 7.1
-    FlowCollector 7.1
-    Cisco Prime Infrastructure 3.9
-    Wireless LAN Controller - C9800 running IOS-XE Amsterdam 17.3.3 code.
+    DNA Center 2.2.3.4 or better
+    Identity Services Engine (ISE) 3.0 Patch 4 or better (deployed)
+    Identity Services Engine (ISE) 3.0 (Not deployed)
+    Stealthwatch 7.4.0 or better
+    FlowCollector 7.4.0 or better
+    Cisco Prime Infrastructure 3.10  or better
+    Script Server - Ubuntu 20.04  or better
+    Wireless LAN Controller - C9800 running IOS-XE Bengaluru 17.5.1 code or better
     Windows 10 Jump Host 
     Windows Server 2019 - Can be configured to provide identity, DHCP, DNS, etc.
-    Windows 10 Clients 
+    Windows 10 Clients
 
 Hardware Devices:
 
-    ISR 4451 Router - 17.3.3 IOS-XE Code
-    Catalyst 9300 Switch - 17.3.3 IOS-XE Code with Embedded Wireless Controller (EWC) and ThousandEyes Enterprise Agent
-    Catalyst 3850 Switch - 16.12.5 IOS-XE Code
-    4800 Access Points
-    Silex Controller (2 NIC's)
+    ISR 4451 Router - 17.06.01a IOS-XE Code
+    Catalyst 9300 Switch - 17.06.01 IOS-XE Code with Embedded Wireless Controller (EWC) and ThousandEyes Enterprise Agent
+    9130AX Access Points
+    Silex Controllers (3 Wired NIC's and 1 Wireless NIC)
 
 The lab envionment that is available is depicted here:
-![json](./LAB1-PNP-PREP/images/DCLOUD_Topology.png?raw=true "Import JSON")
+
+![json](./LAB1-PNP-PREP/images/DCLOUD_Topology2.png?raw=true "Import JSON")
 
 ## Disclaimer
 Various labs are designed for use in the **DCLOUD** environment but can but are for use elsewhere. What is important to realize is the impact of each type of test. For instance, in the ***PnP Preparation*** lab, we go through discovery methods such as ***option 43*** and ***DNS Discovery***. If we were to use the DHCP option 43 and place that in the server options on the DHCP server, it would affect multiple scopes. **Care** is required, therefore, to ensure you do not get unexpected results. Similarly with ***DNS Discovery***, if the sub domain used was available to all devices, more than one device would discover DNA Center. Changes like this may be suitable for production in the future but detrimental during testing.
