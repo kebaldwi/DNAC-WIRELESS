@@ -42,9 +42,39 @@ Please use this menu to navigate the various sections of this Github repository.
 
 ## DCLOUD as a LAB
 ### Overview
-To help aid customers toward success with DNA Center Automation, You may utilize the above labs as they have been designed to work within DCLOUD's  [Cisco Enterprise Networks Hardware Sandbox v2.1](https://dcloud2-rtp.cisco.com/content/demo/759521?returnPathTitleKey=favourites-view) Lab. This allows you to run these labs and gives not only an environment to try the various code, but to develop and export your own code for use in production. This give the customer an environment where they can safely POC/POV methods and steps without harming their own production environments. This also negaes the need for shipping equipment, lead times, and licensing issues needed to get moving rapidly. Please do adhere to the best practices for the DCLOUD environment when using it.
+To help aid customers toward success with DNA Center Automation, You may utilize the above labs as they have been designed to work within DCLOUD's [Cisco Enterprise Networks Hardware Sandbox](https://dcloud2-sjc.cisco.com/content/catalogue?search=Enterprise%20Networks%20Hardware%20Sandbox&screenCommand=openFilterScreen) Lab. This allows you to run these labs and gives not only an environment to try the various code, but to develop and export your own code for use in production. This give the customer an environment where they can safely POC/POV methods and steps without harming their own production environments. This also negaes the need for shipping equipment, lead times, and licensing issues needed to get moving rapidly. Please do adhere to the best practices for the DCLOUD environment when using it.
 
-The environment allows for use with a web-based browser client for VPN-less connectivity, access as well as AnyConnect VPN client connectivity for those who prefer it. The labs are hosted out of our San Jose and RTP Facilities and so you would choose sessions from either US East or US West. Choose the Cisco Enterprise Network Sandbox v2.1 or 3.1. To access this or any other content, including demonstrations, labs, and training in Cloud please work with your Cisco Account team or Cisco Partner Account Team directly. Your Account teams will make sure the session is scheduled and shared for you to use. Once booked follow the guide within Github to complete the tasks adhering to the best practices of the dCLOUD environment.
+The environment allows for use with a web-based browser client for VPN-less connectivity, access as well as AnyConnect VPN client connectivity for those who prefer it. The labs are hosted out of our San Jose Facility and so you would choose sessions from US West. Choose the Cisco Enterprise Network Sandbox version you prefer. To access this or any other content, including demonstrations, labs, and training in Cloud please work with your Cisco Account team or Cisco Partner Account Team directly. Your Account teams will make sure the session is scheduled and shared for you to use. Once booked follow the guide within Github to complete the tasks adhering to the best practices of the dCLOUD environment.
+
+### DCLOUD Labs
+This lab environment has been tested on the following DCLOUD session: [Cisco Enterprise Networks Hardware Sandbox v2.1](https://dcloud2-rtp.cisco.com/content/demo/759521?returnPathTitleKey=favourites-view)
+
+The DCLOUD session includes the following equipment:
+
+Virtual Machines:
+
+    DNA Center 2.2.3.4 or better
+    Identity Services Engine (ISE) 3.0 Patch 4 or better (deployed)
+    Identity Services Engine (ISE) 3.0 (Not deployed)
+    Stealthwatch 7.4.0 or better
+    FlowCollector 7.4.0 or better
+    Cisco Prime Infrastructure 3.10  or better
+    Script Server - Ubuntu 20.04  or better
+    Wireless LAN Controller - C9800 running IOS-XE Bengaluru 17.5.1 code or better
+    Windows 10 Jump Host 
+    Windows Server 2019 - Can be configured to provide identity, DHCP, DNS, etc.
+    Windows 10 Clients
+
+Hardware Devices:
+
+    ISR 4451 Router - 17.06.01a IOS-XE Code
+    Catalyst 9300 Switch - 17.06.01 IOS-XE Code with Embedded Wireless Controller (EWC) and ThousandEyes Enterprise Agent
+    9130AX Access Points
+    Silex Controllers (3 Wired NIC's and 1 Wireless NIC)
+
+The lab envionment that is available is depicted here:
+
+![json](./LAB1-PNP-PREP/images/DCLOUD_Topology2.png?raw=true "Import JSON")
 
 If you found this repository or any section helpful please fill in comments and [give feedback](https://app.smartsheet.com/b/form/f75ce15c2053435283a025b1872257fe) on how it could be improved.
 
