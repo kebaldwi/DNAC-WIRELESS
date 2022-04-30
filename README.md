@@ -74,7 +74,7 @@ Hardware Devices:
 
 The lab envionment that is available is depicted here:
 
-![json](/LAB1-PNP-PREP/images/DCLOUD_Topology2.png?raw=true "Import JSON")
+![json](./LABS/LAB1-PNP-PREP/images/DCLOUD_Topology2.png?raw=true "Import JSON")
 
 If you found this repository or any section helpful please fill in comments and [give feedback](https://app.smartsheet.com/b/form/f75ce15c2053435283a025b1872257fe) on how it could be improved.
 
