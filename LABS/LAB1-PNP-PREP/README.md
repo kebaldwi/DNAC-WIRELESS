@@ -9,275 +9,345 @@ We will be utilizing the lab in this manner:
 ## General Information
 As you may recall, in the informational sections of this repository, we set for the various methods of discovery for a device and the preliminary things required for proper zero-touch provisioning. This lab will ensure a successful connection to DNA Center by helping to deploy the initial concepts.
 
-### Lab Preparation
-To set up the lab, please log into the console connection to the ***4451X*** and issue the following commands:
+# Lab Preparation
+## Lab Section 1 - DNA Center and ISE Integration
+In this lab our focus changes slightly as we start to automate for host onboarding. A large component of host onboarding is the authentication of hosts and assignment within the network. In this section and in preparation for the steps which follow we will integrate DNA Center with Identity Services Engine. This integration allows pxGrid communication between the two and allows for automation of configuration within ISE for Network Access Devices, SGT, SGACL, and Policys.
 
-```
-!
-conf t
-!
-!disable port 0/0/2 for the templating lab
-int gi 0/0/2
- shutdown
- end
-!
-wr
-!
-```
+### Step 1 - ***Prepare ISE for DNA Center Integration***
+1. Open a web browser on the Windows Workstation Jump host. Open a connection to Identity Services Engine (ISE) and select the hamburger menu icon to open the system menu.
 
-## Lab Section 1 - Device Connectivity
-For PnP processes to work, we intend to have a management interface on the device. In this lab, we will set up a VLAN interface for both management and connectivity. You don't have to do it this way; we are just giving a relatively uncomplicated example, and you can alter this to suit your needs. As the device connects to the front-facing ports, we have to rely on the default configuration. 
+![json](./images/ise-dashboard.png?raw=true "Import JSON")
 
-As you may recall, a factory default configuration is using VLAN one as no other VLAN exists, and by default, it accepts DHCP addresses. We can use this method in the PnP process. However, the management VLAN may be different, and so may the native VLAN structure of our environment. To that end, we must use the *pnp startup-vlan* command, which allows the device to use varying VLANs in PnP and should be set up and configured on the upstream switch.
+2. From the system menu under Administration select PxGrid Settings
 
-### Step 1.1 - ***Upstream Neighbor Setup***
-As depicted in the diagram above, the 3850 will serve as the upstream neighbor for this exercise and the environment's distribution switch. The Catalyst 9300 will act as the target switch, which we will deploy via PnP and Day 0 and N templates.
+![json](./images/ise-menu.png?raw=true "Import JSON")
 
-For the lab, we will utilize ***VLAN 5*** as the management VLAN. Connect to switch ***c3850-1*** and paste the following configuration:
+3. On the PxGrid Settings page select both of the available options and click Save to allow DNA Center to integrate.
 
-```
-config t
-!
-vlan 5
-name "mgntvlan"
-!
-int vlan 5 
- ip address 192.168.5.1 255.255.255.0
- ip ospf 1 area 0
- no shutdown
-!
-pnp startup-vlan 5
-end
-!
-wr
-!
-```
+![json](./images/ise-pxgrid-settings.png?raw=true "Import JSON")
+![json](./images/ise-pxgrid-setup.png?raw=true "Import JSON")
 
-The ***pnp startup-vlan 5*** command will program the target switches port connected with a trunk and automatically add the vlan and SVI to the target switch making that vlan ready to accept a DHCP address. The feature is available on switches running 16.6 code or greater as upstream neighbors. Older switches or upstream devices that cannot run the command should utilize VLAN 1 and then set up the correct management VLAN modified as part of the onboarding process.
+### Step 2 - ***DNA Center and ISE Integration***
+1. Open a web browser on the Windows Workstation Jump host. Open a connection to Dna Center and select the hamburger menu icon and navigate to the System > Settings menu item.
 
-### Step 1.2 - ***DHCP Setup***
-We need a DHCP scope to temporarily supply the address within the management network to complete the configuration and onboarding. Configure the scope to offer IP addresses from the part of the address's range, leaving the other part of the scope for static addresses. You could also make use of reservations as DHCP servers can reserve addresses for specific MAC addresses. One benefit of this is that DNS host entries are automatically updated depending on the DHCP Server.
+![json](./images/dnac-system-settings.png?raw=true "Import JSON")
 
-The DHCP scope should therefore incorporate the following minimal configuration:
+2. Within the System Settings page navigate down the list on the left and select the Authentication and Policy Server section.
 
-* network
-* default gateway
-* domain - ***required if option 2 is used below***
-* name-server ip - ***required if option 2 or 3 is used below***
-* DHCP relay or helper statement - ***to be added to the gateway interface pointing to the DHCP server***
+![json](./images/dnac-system-settings-aaa.png?raw=true "Import JSON")
 
-There are many options for DHCP services. Although you have many options for DHCP, we will cover Windows and IOS configurations in this lab. Configure the DHCP scope to one of the following:
+3. On the page select from the dropdown ISE to configure ISE integration.
 
-1. Switch or Router
-2. Windows DHCP Server
-3. InfoBlox or other 3rd party server
+![json](./images/dnac-system-settings-aaa-ise.png?raw=true "Import JSON")
 
-During this lab setup, please choose which option you wish to use for DHCP for PnP services and follow those subsections.
+4. Enter the information as seen on the page and click save.
 
-#### Step 1.2a - ***IOS DHCP Configuration***
-Configured on an IOS device, the DHCP pool elements would be configured either on a router or switch in the network. 
+![json](./images/dnac-system-settings-aaa-ise-config.png?raw=true "Import JSON")
 
-If we want to use the IOS DHCP configuration method, connect to switch ***c3850-1*** and paste the following configuration:
+5. A popup will appear as the ISE node is using an untrusted SelfSigned Certificate. For lab purposes Accept the certificate, this may appear a couple of times as shown.
 
-```
-!
-conf t
-!
-  ip dhcp excluded-address 192.168.5.1 192.168.5.1
-  ip dhcp pool pnp_device_pool                         
-     network 192.168.5.0 255.255.255.0                  
-     default-router 192.168.5.1 
-     end
-!
-wr
-!
-```
+![json](./images/dnac-system-settings-aaa-ise-trust.png?raw=true "Import JSON")
 
-Next, we will configure the helper address statement on the management VLAN's SVI to point to the router or switch to the DHCP configuration. Connect to switch ***c3850-1*** and paste the following configuration:
+6. You will see the the various stages of integration proceed and finally a success message as shown below.
 
-```
-!
-conf t
-!
-  interface Vlan 5                         
-     ip helper-address 192.168.5.1                  
-     end
-!
-wr
-!
-```
+![json](./images/dnac-system-settings-aaa-ise-done.png?raw=true "Import JSON")
+![json](./images/dnac-system-settings-aaa-ise-complete.png?raw=true "Import JSON")
 
-For a complete configuration example please see [Configuring the Cisco IOS DHCP Server](https://www.cisco.com/en/US/docs/ios/12_4t/ip_addr/configuration/guide/htdhcpsv.html#wp1046301)
+## Lab Section 2 - DNA Center Design Preparation
+While we could deploy more extensive settings for deployment, we will limit the configuration to the minimum necessary to perform this step, utilizing ***Postman*** to deploy the settings discover devices and onboard them into DNA Center. 
 
-#### Step 1.2b - ***Windows Server Configuration***
-If we want to use the Windows DHCP service, connect to the windows ***AD1*** server. On the windows server, you have two options to deploy DHCP scopes the UI or PowerShell. We will deploy the scope via PowerShell. Paste the following into PowerShell to create the required DHCP scope:
+Should you desire to deploy rapidly and build the lab faster then use the following approach:
 
-```
-Add-DhcpServerv4Scope -Name "DNAC-Templates-Lab" -StartRange 192.168.5.1 -EndRange 192.168.5.254 -SubnetMask 255.255.255.0 -LeaseDuration 6.00:00:00 -SuperScope "PnP Onboarding"
-Set-DhcpServerv4OptionValue -ScopeId 192.168.5.0 -Router 192.168.5.1 
-Add-Dhcpserverv4ExclusionRange -ScopeId 192.168.5.0 -StartRange 192.168.5.1 -EndRange 192.168.5.1
-```
+### Step 1 - ***Import Postman Collection***
+1. Download and import the collection within the ***Postman*** using the <a href="https://minhaskamal.github.io/DownGit/#/home?url=https://github.com/kebaldwi/DNAC-TEMPLATES/blob/master/LABS/LAB8-Dynamic-Automation/postman/DCLOUD_DNACTemplatesLab_Workflow.postman_collection.json">⬇︎DCLOUD_DNACTemplateLab_Workflow.postman_collection.json⬇︎</a> file.
+2. Extract the file to the desktop using **Winrar** to expand them
+3. Open the **postman** application from the desktop. Once the application is open select *Collections* then click the *Import* link. 
+![json](./images/Postman-Pre-Collection-Import.png?raw=true "Import JSON")
+4. A window should appear on the file upload page. Click the upload button and select desktop from the windows explorer. Select the file named `DCLOUD_DNACTemplatesLab_Workflow.postman_collection.json` and click open. 
+![json](./images/Postman-Collection-Select.png?raw=true "Import JSON")
+5. Then click import and the collection should be loaded into the collections as shown.
+![json](./images/Postman-Post-Collection-Import.png?raw=true "Import JSON")
 
-The DHCP scope will look like this in Windows DHCP Administrative tool:
+### Step 2 - ***Import Postman Environment***
+1. Download and import the environment within the ***Postman*** using the <a href="https://minhaskamal.github.io/DownGit/#/home?url=https://github.com/kebaldwi/DNAC-TEMPLATES/blob/master/LABS/LAB8-Dynamic-Automation/postman/DCLOUD_DNACTemplateLabs.postman_environment.json">⬇︎DCLOUD_DNACTemplateLabs.postman_environment.json⬇︎</a> file.
+2. Extract the file to the desktop using **Winrar** to expand them
+3. If not open, open the **postman** application from the desktop. Once the application is open select *Environments* and then the *Import* link. 
+![json](./images/Postman-Pre-Environment-Import.png?raw=true "Import JSON")
+4. A window should appear on the file upload page. Click the upload button and select desktop from the windows explorer. Select the file named `DCLOUD_DNACTemplateLabs.postman_environment.json` and click open. 
+![json](./images/Postman-Environment-Select.png?raw=true "Import JSON")
+5. Then click import and the environment should be loaded into the environments as shown. 
+![json](./images/Postman-Post-Environment-Import.png?raw=true "Import JSON")
+6. Next we will choose the environment by clicking the checkmark on the right of Environment in postman as shown here. 
+![json](./images/Postman-Environment-Selection.png?raw=true "Import JSON")
 
-![json](./images/WindowsDHCPscoperouteronly.png?raw=true "Import JSON")
+### Step 3 - ***Turn off SSL validation for LAB purposes within Postman***
+1. Turn off SSL verification for lab purposes in the settings of Postman by click the **Gear** icon to select **settings** and **deselect** `SSL certificate verification` and then close the settings window. 
+![json](./images/Postman-SSL-Deselect.png?raw=true "Import JSON")
+2. With these steps completed we are prepared to start the walk through of the sections below.
 
-Next, we will introduce the helper address statement on the management VLAN's SVI to point to the Windows DHCP server. Connect to switch ***c3850-1*** and paste the following configuration:
+### Step 4 - ***Run the Collection within Postman***
+This collection is built with a flow and delay timers wait for the collection to finish entirely.
+1. If not open, open the **postman** application from the desktop. Once the application is open select *Collections* and then the '...' link and select **run collection**. </br>
+![json](./images/Postman-CollectionRunner.png?raw=true "Import JSON")
+2. On the right ensure all API are selected and click run collection. 
+![json](./images/Postman-CollectionRunner-Run.png?raw=true "Import JSON")
+3. After the entire collection has run you will see all of them listed on the left as shown, and two buttons on the top right, one for results and the other to run again.
+![json](./images/Postman-CollectionRunner-Results.png?raw=true "Import JSON")
+4. Within DNA Center you should see 3 devices within the inventory and additionally you should observe a complete hierarchy as well as settings and telemetry configured. The Devices will be discovered in the Building level at this stage.
+![json](./images/Postman-Discovery.png?raw=true "Import JSON")
+![json](./images/Postman-Settings.png?raw=true "Import JSON")
 
-```
-!
-conf t
-!
-  interface Vlan 5                         
-     ip helper-address 198.18.133.1                  
-     end
-!
-wr
-!
-```
+## Lab Section 3 - DHCP & DNS Service Preparation
+In this section we will prepare Domain Name System (DNS) and Dynamic Host Configuration Protocol (DHCP) on the Windows Server for the lab environment. The reasons for the configurations made here are detailed heavily in Lab 2 titled [Onboarding Templates](https://github.com/kebaldwi/DNAC-TEMPLATES/blob/master/LABS/LAB2-Onboarding-Template/)
 
-## Lab Section 2 - DNA Center Discovery
-As you may recall, for a device to discover DNA Center, the device uses a discovery method to help it find DNA Center. 
+### Step 1 - ***Configuring DHCP and DNS via Powershell***
+1. Download the powershell script to the ***windows server*** using the <a href="https://minhaskamal.github.io/DownGit/#/home?url=https://github.com/kebaldwi/DNAC-TEMPLATES/blob/master/LABS/LAB8-Dynamic-Automation/scripts/powershell.ps1">⬇︎powershell.ps1⬇︎</a> file.
+2. Once downloaded, extract the file.
+   ![json](./images/Powershell-Extract.png?raw=true "Import JSON")
+   ![json](./images/Powershell-Extract-Location.png?raw=true "Import JSON")
+3. Right click on the file and run with powershell.
+   ![json](./images/Powershell-Run.png?raw=true "Import JSON")
+4. You may see a security warning. If you do accept it by entering **Y**.
+   ![json](./images/Powershell-Security.png?raw=true "Import JSON")
+At this point all the DNS and DHCP configuration on the ***windows server*** will be generated.
+   ![json](./images/DNS-DHCP.png?raw=true "Import JSON")
 
-The PnP components are as follows:
+## Lab Section 4 - Image Repository
+As we have discovered the devices, from the network, DNA Center has the capability to pull those images deployed from the network devices in bundle mode. If the device is in install mode then you would manually have to add the images. We can then mark them as **Golden** for *Plug and Play* and *image upgrade* purposes. 
 
-![json](../../images/pnp-workflows.png?raw=true "Import JSON")
+For our purposes as we will be focusing on only the **9300-2** switch we will complete the following steps.
 
-There are three automated methods to make that occur:
+The image used in this lab for the 9300-2 is downloadable from here [⬇︎Bengaluru-17.06.01 MD⬇︎](https://software.cisco.com/download/home/286315874/type/282046477/release/Bengaluru-17.6.1) **(required)** 
 
-1. **DHCP with option 43** - ***requires the DHCP server to offer a PnP string via option 43***
-2. **DNS lookup** - ***requires the DHCP server to offer a domain suffix and a name server to resolve the **pnpserver** address***
-3. **Cloud re-direction via https://devicehelper.cisco.com/device-helper** - ***requires the DHCP server to offer a name server to make DNS resolutions***
+1. Within DNA Center Navigate to *Design>Image Repository*  
+   ![json](./images/DNAC-Design-ImageRepo-menu.png?raw=true "Import JSON")
+2.  **Image Repository** should be populated with the image of the network device you wish to deploy. You can import the image using the **+ Import** link which will open a popup allowing you to choose a file from the local file system, or allow you to reference a URL for either HTTP or FTP transfer. 
+   ![json](./images/DNAC-Design-ImageRepo-import.png?raw=true "Import JSON")
+3. We will select the file from our local system.
+   ![json](./images/DNAC-Design-ImageRepo-select.png?raw=true "Import JSON")
+3. The file will then import into DNA Center.    
+   ![json](./images/DNAC-Design-ImageRepo-imageimport.png?raw=true "Import JSON")
+4. Once the file is imported and as the devices were previously discovered and assigned to the infrastructure we will navigate to the *Floor 1* in the hierarchy and mark the *17.06.01* as **Golden** as shown for PnP to use it.  
+   ![json](./images/DNAC-Design-ImageRepo-golden.png?raw=true "Import JSON")
 
-### Step 2.1 - ***DNA Center Discovery***
-Please choose one of the following subsections as the discovery method.
+## Lab Section 5 - DNA Center Template Preparation
+As Labs 1 through 9  within DNAC Template Labs deal with the wired network in depth and the automation tasks like PnP and DayN templating for switching, in this set of labs we will focus on only the wireless network. We will now import the various templates for use in this lab for the router and switches to prepare the environment for the Wireless Labs ahead.
 
-#### Step 2.1a - ***Option 43 with IOS DHCP Configuration***
-If using the IOS DHCP Server and the desire is to use Option 43 discovery method, then paste the following configuration:
+### Step 1 - ***Import Lab Preparation Project***
+The Lab Preparation Project and Templates will be used to prepare the environment.
 
-```
-!
-conf t
-!
-  ip dhcp pool pnp_device_pool                    
-     option 43 ascii "5A1N;B2;K4;I198.18.129.100;J80"
-     end
-!
-wr
-!
-```
+Download and import the Onboarding Template within the ***Template Editor*** using the <a href="https://minhaskamal.github.io/DownGit/#/home?url=https://github.com/kebaldwi/DNAC-TEMPLATES/blob/master/LABS/LAB8-Dynamic-Automation/templates/DCLOUD-PrepEnvironment-project.json">⬇︎DCLOUD-PrepEnvironment-Project.json⬇︎</a> file.
 
-#### Step 2.1b - ***Option 43 with Windows DHCP Configuration***
-If using the Windows DHCP Server and the desire is to use Option 43 discovery method, then paste the following configuration into PowerShell:
+Please un-zip the file and import the *json* file which will automatically create a project and included templates within. Use the following steps to import the project.
 
-```
-Set-DhcpServerv4OptionValue -ScopeId 192.168.5.0 -OptionId 43 -Value ([System.Text.Encoding]::ASCII.GetBytes("5A1N;B2;K4;I198.18.129.100;J80"))
-```
+1. Navigate to the **Template Editor** within DNA Center through the menu *Tools>Template Editor*.
+   ![json](./images/DNAC-Template-menu.png?raw=true "Import JSON")
+2. Within the **template editor**, left-click the ⨁ icon to the right of find template and click **Import Project(s)** within the menu.  
+   ![json](./images/DNAC-Template-menu-import.png?raw=true "Import JSON")
+3. Download the file above *DNAC_Template_Lab_DayN_project.json* to be imported into the DNA Center. Once downloaded, extract the file.
+4. From the **Import Project(s)** window, click **Select a file from your computer** from the explorer window, select the extracted JSON file and click open. 
+   ![json](./images/DNAC-Template-Prep-select.png?raw=true "Import JSON")
+5. Click **Import**, and the project and all the templates within it will be imported.   
+   ![json](./images/DNAC-Template-import.png?raw=true "Import JSON")
+6. Once the project is imported, select it to view each of the template files within it.
 
-The DHCP scope modification will resemble the following image of the Windows DHCP Administrative tool:
+## Lab Section 6 - Setup of Discovered Devices
+At this point in the lab the setup steps for the lab environment are done, DNS and DHCP are set up, ISE is integrated and DNA Center is ready for deploying configurations. In this section we will deploy the templates to configure the discovered devices. Note we could have automated this process too but wanted to separate this out so you can make modifications as you might need to for testing purposes.
 
-![json](./images/DNACDHCPoption43.png?raw=true "Import JSON")
+### Lab SubSection 6.1 - 9300 Target Preparation
+In this subsection we will prepare the **Target** using the *c9300-2.dcloud.cisco.com*. To begin preparation of this **Target** device we can deploy a template to modify discovered device within the infrastructure to reset it automatically. In order to accomplish this we will need to complete the following stages.
 
-#### Step 2.1c - ***DNS Lookup with IOS DHCP Configuration***
-If using the IOS DHCP Server and the desire is to use the DNS Lookup discovery method, then paste the following configuration:
+#### Step 1 - ***Building Switching Network Profiles***
+1. Navigate to the **Design** within DNA Center through the menu *Design>Network Profile*.
+   ![json](./images/DNAC-NetworkProfile-menu.png?raw=true "Import JSON")
+2. Select *Switching* under **Add Profile** .
+   ![json](./images/DNAC-NetworkProfile-Switching-Add.png?raw=true "Import JSON")
+3. Enter the following: 
+      1. Enter the *Profile name* 
+      2. Select **DayN Template** tab to add the template for this workflow.
+      3. Click the **Table View** 
+      4. Click *Add Template* to proceed to the next step. 
+         ![json](./images/DNAC-NetworkProfile-Switching-DayN.png?raw=true "Import JSON")
+4. Enter the following: 
+      1. Leave the **Device Type** as *Switches and Hubs*
+      2. Select the dropdown **Template** tand search for *C9300-TARGET-Prep*.
+      3. Click the **Tags** 
+      4. Enter *RELOAD* as a tag. *(If necessary click the small* ***x** by any other tag visible)*
+      5. Click **Add** 
+         ![json](./images/DNAC-Profile-Target-add.png?raw=true "Import JSON")
+5. Click **View** to ensure the RELOAD tag is the only tag applied and click **Save**.
+   ![json](./images/DNAC-Profile-Target-save.png?raw=true "Import JSON")
 
-```
-!
-conf t
-!
-  ip dhcp pool pnp_device_pool                          
-     dns-server 198.18.133.1                           
-     domain-name dcloud.cisco.com                       
-     end
-!
-wr
-!
-```
+#### Step 2 - ***Assigning Switching Network Profile to a Site***
+1. **Assign** the network profile to the hierarchy 
+![json](./images/DNAC-NetworkProfile-Switching-DayN-Assign.png?raw=true "Import JSON")
+2. Select the **sites** to apply the profile within the hierarchy and click **Save**
+![json](./images/DNAC-NetworkProfile-Switching-DayN-Assign-Site.png?raw=true "Import JSON")
 
-Next, add the DNS entries to allow for the DNA Center to be discovered. This script will add an A host entry for the VIP address and a CNAME entry as an alias for the pnpserver record required for DNS discovery.
+#### Step 3 - ***Provisioning Target 9300 Switch***
+We will now provision the **Target** switch using the *C9300-TARGET-Prep* DayN Template. The template uses a *Tag* of **RELOAD** so we need to first set that and then provision the switch. To do this, do the following:
 
-```
-Add-DnsServerResourceRecordA -Name "dnac-vip" -ZoneName "dcloud.cisco.com" -AllowUpdateAny -IPv4Address "198.18.129.100" -TimeToLive 01:00:00
-Add-DnsServerResourceRecordCName -Name "pnpserver" -HostNameAlias "dnac-vip.dcloud.cisco.com" -ZoneName "dcloud.cisco.com"
-```
+##### Tag Switch
+   1. Within DNA Center Navigate to *Provision>Inventory*.      
+      ![json](./images/DNAC-InventoryProvision-menu.png?raw=true "Import JSON")
+   2. Put a **checkmark** next to the device *c9300-1.dcloud.cisco.com*.
+   3. Click the **Tag Device** link 
+   4. Search for and place a **checkmark** beside *RELOAD*
+   5. Click **Apply**    
+      ![json](./images/DNAC-Provision-Target-tag.png?raw=true "Import JSON")
 
-The DNS Zone will look like this in Windows DNS Administrative tool: 
+##### Provision Switch
+   1. Within DNA Center Navigate to *Provision>Inventory*.      
+      ![json](./images/DNAC-InventoryProvision-menu.png?raw=true "Import JSON")
+   2. Put a checkmark next to the device *c9300-1.dcloud.cisco.com* to be provisioned.
+   3. Click **Actions>Provision>Provision Device** link and walk through the workflow    
+      ![json](./images/DNAC-Provision-Target-flow.png?raw=true "Import JSON")
+   4. The floor was already selected during the **API Discovery** so click **next**    
+      ![json](./images/DNAC-Provision-Target-flow-1.png?raw=true "Import JSON")
+   5. Select *c9300-1.dcloud.cisco.com* on the left and the two tick boxes at the top of the page, then click **next**. If the template had inputs, they would be entered.
+      ![json](./images/DNAC-Provision-Target-flow-2.png?raw=true "Import JSON")
+   6. Check the settings and if you agree accept these settings by clicking  **Deploy**.
+      ![json](./images/DNAC-Provision-Target-flow-3.png?raw=true "Import JSON")
+   7. Three options are displayed. Choose to deploy **Now** and **Apply**
+      ![json](./images/DNAC-Provision-Target-flow-4.png?raw=true "Import JSON")
+   8. The task will be submitted, and the deployment will run.
+   9. After a small amount of time, you will see a success notification. What is essential to understand is that the configuration, while pushed to the device, will resync in DNA Center after the resync timer has elapsed.        
+      ![json](./images/DNAC-Provision-Target-success.png?raw=true "Import JSON")
 
-![json](./images/DNACenterDNSentries.png?raw=true "Import JSON")
+#### Step 4 - ***Deleting the Target 9300 Switch***
+We will now delete the **Target** switch to allow for the switch to be discovered automatically during the **Plug and Play (PnP)** process. In order to accomplish this complete the following tasks:
+   1. Within DNA Center Navigate to *Provision>Inventory*.      
+      ![json](./images/DNAC-InventoryProvision-menu.png?raw=true "Import JSON")
+   2. Put a **checkmark** next to the device *c9300-1.dcloud.cisco.com*.
+   3. Click **Actions>Inventory>Delete Device** link 
+      ![json](./images/DNAC-Provision-Target-delete-1.png?raw=true "Import JSON")
+   4. On the *Popup* that appears click **Ok**
+      ![json](./images/DNAC-Provision-Target-delete-2.png?raw=true "Import JSON")
+   5. DNA Center will then delete the switch from the Database.  
+      ![json](./images/DNAC-Provision-Target-delete-3.png?raw=true "Import JSON")
 
-#### Step 2.1d - ***DNS Lookup with Windows DHCP Configuration***
-If using the Windows DHCP Server and the desire is to use the DNS Lookup discovery method, then paste the following configuration into PowerShell:
+### Lab SubSection 6.2 - ISR Preparation
+In this subsection we will apply a small template to the ISR 4331. This is to prove out that we can deploy templates to modify discovered devices within the infrastructure no matter what variant they are. You could also use this method to apply configuration to a router to mitigate vulnerabilities discovered as part of a tennable security scan. 
 
-```
-Set-DhcpServerv4OptionValue -ScopeId 192.168.5.0 -DnsServer 198.18.133.1 -DnsDomain "dcloud.cisco.com"
-```
+#### Step 1 - ***Building Routing Network Profiles***
+1. Navigate to the **Design** within DNA Center through the menu *Design>Network Profile*.
+   ![json](./images/DNAC-NetworkProfile-menu.png?raw=true "Import JSON")
+2. Select *Routing* under **Add Profile** .
+   ![json](./images/DNAC-NetworkProfile-Routing-Add.png?raw=true "Import JSON")
+3. Enter the following: 
+      1. Enter the *Profile name* 
+      2. Select *Zero* for **Service Providers**
+      3. Click the **Device Type** dropdown and select *Cisco 4331 Integrated Services Router* 
+      4. Click *Next* to proceed to the next step. 
+      ![json](./images/DNAC-NetworkProfile-Routing-1.png?raw=true "Import JSON")
+4. We are not utilizing **Step 2** so click *Next* to proceed to the next step.
+   ![json](./images/DNAC-NetworkProfile-Routing-2.png?raw=true "Import JSON")
+5. We are not utilizing **Step 3** so click *Next* to proceed to the next step.
+   ![json](./images/DNAC-NetworkProfile-Routing-3.png?raw=true "Import JSON")
+6. On **Step 4** complete the following: 
+      1. Select the *Day-N Template(s)* tab 
+      2. Click the **Template** dropdown and select *ISR-Prep* 
+      3. Click *Next* to proceed to the next step. 
+         ![json](./images/DNAC-NetworkProfile-Routing-4.png?raw=true "Import JSON")
+7. To complete the Network Profile in **Step 5** click *Save*.
+   ![json](./images/DNAC-NetworkProfile-Routing-5.png?raw=true "Import JSON")
 
-The DHCP scope will resemble the following image of the Windows DHCP Administrative tool:
+#### Step 2 - ***Assigning Routing Network Profile to a Site***
+1. **Assign** the network profile to the hierarchy 
+   ![json](./images/DNAC-NetworkProfile-Routing-Assign.png?raw=true "Import JSON")
+2. Select the **sites** to apply the profile within the hierarchy and click **Save**
+   ![json](./images/DNAC-NetworkProfile-Routing-Assign-Site.png?raw=true "Import JSON")
 
-![json](./images/WindowsDHCPscope.png?raw=true "Import JSON")
+#### Step 3 - ***Provisioning Router***
+   1. Within DNA Center Navigate to *Provision>Inventory*.      
+      ![json](./images/DNAC-InventoryProvision-menu.png?raw=true "Import JSON")
+   2. Put a checkmark next to the device *isr-4331.dcloud.cisco.com* to be provisioned.
+   3. Click the **Actions>Provision>Provision Device** link and walk through the workflow    
+      ![json](./images/DNAC-Provision-ISR-flow.png?raw=true "Import JSON")
+   4. The floor was already selected during the **API Discovery** so click **next**    
+      ![json](./images/DNAC-Provision-ISR-flow-1.png?raw=true "Import JSON")
+   5. The ISR 4331 was pre selected in the profile so click **next**
+      ![json](./images/DNAC-Provision-ISR-flow-2.png?raw=true "Import JSON")
+   6. Do the following:
+      1. Select the Day-N Templates Tab
+      2. Select the IP of the ISR
+      3. Select both **checkmark**
+      4. Click **next**
+      ![json](./images/DNAC-Provision-ISR-flow-3.png?raw=true "Import JSON")
+   7. A summary is displayed. Click **Deploy**.
+      ![json](./images/DNAC-Provision-ISR-flow-4.png?raw=true "Import JSON")
+   8. Three options are displayed. Choose to deploy **Now** and **Apply**
+      ![json](./images/DNAC-Provision-ISR-flow-5.png?raw=true "Import JSON")
+   9. The task will be submitted, and the deployment will run.
+   10. After a small amount of time, you will see a success notification. What is essential to understand is that the configuration, while pushed to the device, will resync in DNA Center after the resync timer has elapsed.        
+      ![json](./images/DNAC-Provision-ISR-success.png?raw=true "Import JSON")
 
-Next, add the DNS entries to allow for the DNA Center to be discovered. This script will add an A host entry for the VIP address and a CNAME entry as an alias for the pnpserver record required for DNS discovery.
+### Lab SubSection 6.3 - Distribution 9300 Preparation
+In this subsection we will apply a small templates to the Cat 9300-2 which is used as a distribution switch. This is to prove out that we can deploy templates to modify discovered devices within the infrastructure no matter what variant they are. You could also use this method to apply configuration to a switch to mitigate vulnerabilities discovered as part of a tennable security scan. 
 
-```
-Add-DnsServerResourceRecordA -Name "dnac-vip" -ZoneName "dcloud.cisco.com" -AllowUpdateAny -IPv4Address "198.18.129.100" -TimeToLive 01:00:00
-Add-DnsServerResourceRecordCName -Name "pnpserver" -HostNameAlias "dnac-vip.dcloud.cisco.com" -ZoneName "dcloud.cisco.com"
-```
+#### Step 1 - ***Building Switching Network Profiles***
+1. Navigate to the **Design** within DNA Center through the menu *Design>Network Profile*.
+   ![json](./images/DNAC-NetworkProfile-menu.png?raw=true "Import JSON")
+2. Click the **Edit** beside the *DNAC-Templates-C9300* Profile Name.
+   ![json](./images/DNAC-NetworkProfile-Switching-edit.png?raw=true "Import JSON")
+3. Enter the following: 
+      1. Enter the *Profile name* 
+      2. Select **DayN Template** tab to add the template for this workflow.
+      3. Click the **Table View** 
+      4. Click *Add Template* to proceed to the next step. 
+         ![json](./images/DNAC-NetworkProfile-Switching-DayN.png?raw=true "Import JSON")
+4. Enter the following: 
+      1. Leave the **Device Type** as *Switches and Hubs*
+      2. Select the dropdown **Template** tand search for *DISTRO-C9300-2*.
+      3. Click the **Tags** 
+      4. Enter *INFRA* as a tag. *(If necessary click the small* ***x** by any other tag visible)*
+      5. Click **Add** 
+         ![json](./images/DNAC-NetworkProfile-Switching-DayN-Template.png?raw=true "Import JSON")
+5. Click **View** to ensure the INFRA tag is **the only tag** applied and click **Save**.
+   ![json](./images/DNAC-NetworkProfile-Switching-DayN-Template-Save.png?raw=true "Import JSON")
 
-The DNS Zone will look like this in Windows DNS Administrative tool: 
+#### Step 2 - ***Assigning Switching Network Profile to a Site***
+The network profile is already assigned to the site, so this step is not required but for review purposes only these were the steps we used to accomplish that originally. As this is already completed you can skip to **Step 3**
 
-![json](./images/DNACenterDNSentries.png?raw=true "Import JSON")
+1. **Assign** the network profile to the hierarchy 
+![json](./images/DNAC-NetworkProfile-Switching-DayN-Assign.png?raw=true "Import JSON")
+2. Select the **sites** to apply the profile within the hierarchy and click **Save**
+![json](./images/DNAC-NetworkProfile-Switching-DayN-Assign-Site.png?raw=true "Import JSON")
 
-## Lab Section 3 - Target Connectivity
-Typically, the Target switch is connected via a trunk to a single port or a bundle of ports as part of a port channel. 
+#### Step 3 - ***Provisioning Distribution 9300 Switch***
+We will now provision the distribution switch using the *DISTRO-C9300-2* DayN Composite Template. The template uses a *Tag* of **INFRA** so we need to first set that and then provision the switch. To do this, do the following:
 
-If it is a single port connection to the target switch, then use a simplified configuration; however, we will not be utilizing this method in this lab. An example provided here:
+##### Tag Switch
+   1. Within DNA Center Navigate to *Provision>Inventory*.      
+   ![json](./images/DNAC-InventoryProvision-menu.png?raw=true "Import JSON")
+   2. Put a **checkmark** next to the device *c9300-2.dcloud.cisco.com*.
+   3. Click the **Tag Device** link 
+   4. Search for and place a **checkmark** beside *INFRA*
+   5. Click **Apply**    
+   ![json](./images/DNAC-Provision-Distro-tag.png?raw=true "Import JSON")
 
-```
-!
-conf t
-!
-  interface range gi 1/0/10
-     description PnP Test Environment to Cataylist 9300
-     switchport mode trunk
-     switchport trunk allowed vlan 5
-     end
-!
-wr
-!
-```
+##### Provision Switch
+   1. Within DNA Center Navigate to *Provision>Inventory*.      
+      ![json](./images/DNAC-InventoryProvision-menu.png?raw=true "Import JSON")
+   2. Put a checkmark next to the device *c9300-2.dcloud.cisco.com* to be provisioned.
+   3. Click the **Actions>Provision>Provision Device** link and walk through the workflow    
+      ![json](./images/DNAC-Provision-Distro-flow.png?raw=true "Import JSON")
+   4. The floor was already selected during the **API Discovery** so click **next**    
+      ![json](./images/DNAC-Provision-Distro-flow-1.png?raw=true "Import JSON")
+   5. Select *c9300-1.dcloud.cisco.com* on the left and the two tick boxes at the top of the page, then click **next**. If the template had inputs, they would be entered.
+      ![json](./images/DNAC-Provision-Distro-flow-2.png?raw=true "Import JSON")
+   6. Check the settings and if you agree accept these settings by clicking  **Deploy**.
+      ![json](./images/DNAC-Provision-Distro-flow-3.png?raw=true "Import JSON")
+   7. Three options are displayed. Choose to deploy **Now** and **Apply**
+      ![json](./images/DNAC-Provision-Distro-flow-4.png?raw=true "Import JSON")
+   8. The task will be submitted, and the deployment will run.
+   9. After a small amount of time, you will see a success notification. What is essential to understand is that the configuration, while pushed to the device, will resync in DNA Center after the resync timer has elapsed.        
+      ![json](./images/DNAC-Provision-Distro-flow-success.png?raw=true "Import JSON")
 
-In this exercise, the port where the Target switch connects is a layer two trunk as part of a Port Channel. 
-
-```
-!
-conf t
-!
-  interface range gi 1/0/10-11
-     description PnP Test Environment to Cataylist 9300
-     switchport mode trunk
-     switchport trunk native vlan 5
-     switchport trunk allowed vlan 5
-     channel-protocol lacp
-     channel-group 1 mode passive
-!
-  interface Port-channel1
-     description PnP Test Environment to Cataylist 9300
-     switchport trunk native vlan 5
-     switchport trunk allowed vlan 5
-     switchport mode trunk
-     no port-channel standalone-disable
-     end
-!
-wr
-!
-```
-
-If we are using a port-channel initially, you want to ensure that the port-channel can operate as a single link within the bundle and, for that reason, use passive methods for building the port-channel bundles on both the Target and Upstream Neighbor for maximum flexibility. Additionally, add the **no port-channel standalone-disable** command to ensure the switch does not automatically disable the port-channel if it does not come up properly.
-
-## Lab Section 4 - Testing
+## Lab Section 7 - Testing
 Please use the testing for the DNS Discovery method used above.
 
-### Step 4.1a - ***DNS Resolution Tests***
+### Step 1 - ***DNS Resolution Tests***
 To test the environment to ensure it's ready, we need to try a few things.
 
 First, from a Windows host, use the *nslookup* command to resolve ***pnpserver.dcloud.cisco.com***. Connect to the Windows workstation, and within the search window, search for CMD. Open the application and type the following command:
@@ -290,7 +360,7 @@ The following output or something similar shows the resolution of the alias to t
 
 ![json](./images/DNACenterDNStests.png?raw=true "Import JSON")
 
-### Step 4.1b - ***DNS Resolution***
+### Step 2 - ***DNS Resolution***
 Second, we need to ensure the DNA Center responds on the VIP, so use the ping command within the CMD application window previously opened as follows:
 
 ```
@@ -301,90 +371,15 @@ ping pnpserver.dcloud.cisco.com
 
 At this point, the environment should be set up to onboard devices within VLAN 5 using the network address ***192.168.5.0/24*** utilizing either ***option 43*** or ***DNS discovery ***.
 
-### Step 4.2 - ***Reset EEM Script or PnP Service Reset***
-When testing, you will frequently need to start again on the switch to test the whole flow. To accomplish this, paste this small script into the 9300 target switch, which will create a file on flash which you may load into the running-configuration at any time to reset the device to factory settings:
+### Step 3 - ***Preparation Confirmation***
+Once all the steps have been completed, the *access points* will have rebooted in a default state, acquired an IP address, discovered DNA Center and will appear in the **Plug and Play** tab in the **Provisioning** application. Confirm this by 
 
-There are now two methods for this The first and simplest method is to make use of the `pnp service reset` command as advised by Matthew Bishop. This command was introduced in a recent Train of XE code.
+   1. Within DNA Center Navigate to *Provision>Inventory*.      
+      ![json](./images/DNAC-InventoryProvision-menu.png?raw=true "Import JSON")
+   2. Select the *Plug and Play* tab and notice the switch under the *unclaimed* section.
+      ![json](./images/DNAC-Provision-Target-delete-4.png?raw=true "Import JSON")
 
-Failing that we have an EEM script which you may use iterated below.
-
-```
-tclsh                            
-puts [open "flash:prep4dnac" w+] {
-!
-! Remove any confirmation dialogs when accessing flash
-file prompt quiet
-!
-no event manager applet prep4dnac
-event manager applet prep4dnac
- event none sync yes
- action a1010 syslog msg "Starting: 'prep4dnac'  EEM applet."
- action a1020 puts "Preparing device to be discovered by device automation - This script will reboot the device."
- action b1010 cli command "enable"
- action b1020 puts "Saving config to update BOOT param."
- action b1030 cli command "write"
- action c1010 puts "Erasing startup-config."
- action c1020 cli command "wr er" pattern "confirm"
- action c1030 cli command "y"
- action d1010 puts "Clearing crypto keys."
- action d1020 cli command "config t"
- action d1030 cli command "crypto key zeroize" pattern "yes/no"
- action d1040 cli command "y"
- action e1010 puts "Clearing crypto PKI stuff."
- action e1020 cli command "no crypto pki cert pool" pattern "yes/no"
- action e1030 cli command "y"
- action e1040 cli command "exit"
- action f1010 puts "Deleting vlan.dat file."
- action f1020 cli command "delete /force vlan.dat"
- action g1010 puts "Deleting certificate files in NVRAM."
- action g1020 cli command "delete /force nvram:*.cer"
- action h0001 puts "Deleting PnP files"
- action h0010 cli command "delete /force flash:pnp*"
- action h0020 cli command "delete /force nvram:pnp*"
- action i0001 puts "Reseting Stack Priority"
- action i0010 cli command "switch 1 priority 1"
- action z1010 puts "Device is prepared for being discovered by device automation.  Rebooting."
- action z1020 syslog msg "Stopping: 'prep4dnac' EEM applet."
- action z1030 reload
-exit
-!
-alias exec prep4dnac event manager run prep4dnac
-!
-end
-}
-tclquit
-```
-Additionally, for help with troubleshooting, install this helpful EEM script in the directory in the same manner as above. This will help to see which lines were sent to the switch and helps deduce where a template may be failing.
-```
-tclsh
-puts [open "flash:dnacts" w+] {
-!
-event manager applet CLI_COMMANDS-->
-event cli pattern ".*" sync no skip no
-action 1 syslog msg "$_cli_msg"
-!
-}
-tclquit
-```
-
-### Step 4.3 - ***Reset Switch and Test Discovery***
-Finally, we want to test the routing, connectivity, DHCP, DNS services, and discovery mechanism. Reset the ***c9300-1*** Target switch by pasting the following sequence into the console. We will watch the switch come up but not intercede or type anything into the console after the reboot has started.
-
-```
-!
-copy prep4dnac running-config
-!
-prep4dnac
-!
-```
-
-The Switch should reboot and display this eventually in the console which acknowledges that the 9300 has discovered the DNA Center.
-
-![json](./images/DNAC-IPV4-DISCOVERY.png?raw=true "Import JSON")
-
-Additionally, within DNA Center on the Plug and Play window, the device should show as unclaimed.
-
-![json](./images/DNAC-9300-Discovery.png?raw=true "Import JSON")
+At this point we are ready to set up our **Wireless Environment**.
 
 ## Summary
 The next step will be to build the PnP Onboarding settings and template on DNA Center, which we will cover in the next lab entitled [Onboarding Templates](../LAB2-Onboarding-Template/README.md#Day0) - The next lab explains in-depth and how to deploy Day 0 templates.
